@@ -12,21 +12,21 @@
 
 ---
 
-## ✨ Features
+##  Features
 
-- 🚀 **Ultra-fast responses** via [Groq's LPU architecture](https://groq.com) — LLaMA 3.3-70b model (79% faster than traditional GPU inference)
-- 🖼️ **Image analysis** powered by Google Gemini 1.5 Flash
-- 💬 **Persistent chat history** stored in Supabase/PostgreSQL
-- 🔍 **Chat search** — find any past conversation instantly
-- 🎭 **Personality modes** — Reasoning, Coding, Love Mode, Roast Mode
-- 🌙 **Dark / Light mode** with pure `#ffffff` / `#000000` text contrast
-- 🔐 **Google OAuth** via Firebase Authentication
-- ⚡ **Streaming responses** with smooth animations
-- 📱 **PWA-ready** with service worker support
+-  **Ultra-fast responses** via [Groq's LPU architecture](https://groq.com) — LLaMA 3.3-70b model (79% faster than traditional GPU inference)
+-  **Image analysis** powered by Google Gemini 1.5 Flash
+-  **Persistent chat history** stored in Supabase/PostgreSQL
+-  **Chat search** — find any past conversation instantly
+-  **Personality modes** — Reasoning, Coding, Love Mode, Roast Mode
+-  **Dark / Light mode** with pure `#ffffff` / `#000000` text contrast
+-  **Google OAuth** via Firebase Authentication
+-  **Streaming responses** with smooth animations
+-  **PWA-ready** with service worker support
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -41,7 +41,7 @@
 
 ---
 
-## 🚀 Run Locally
+##  Run Locally
 
 **Prerequisites:** Node.js 18+
 
@@ -84,7 +84,7 @@ App runs at `http://localhost:5173`
 
 ---
 
-## 📦 Build & Deploy
+##  Build & Deploy
 
 ```bash
 # Build for production
@@ -121,7 +121,7 @@ teki-ai/
 
 ---
 
-## 🔒 Security
+##  Security
 
 - Firestore rules restrict all reads/writes to authenticated owners only
 - No admin role escalation possible (shadow field injection blocked)
@@ -138,7 +138,7 @@ See [`security_spec.md`](./security_spec.md) for the full threat model.
 
 ---
 
-## 👤 Author
+##  Author
 
 **Sainadh** — B.Tech IT, Hyderabad  
 Building fast, shipping faster.
