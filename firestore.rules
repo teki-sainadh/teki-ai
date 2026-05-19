@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Entity Validations ---
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['email']) &&
+             data.email is string && data.email.size() <= 256 &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 128)) &&
+             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 512));
+    }
+
+    function isValidSession(data) {
+      return data.keys().hasAll(['title', 'messages', 'updatedAt']) &&
+             data.title is string && data.title.size() <= 200 &&
+             data.messages is list && data.messages.size() <= 1000 &&
+             data.updatedAt == request.time;
+    }
+
+    // --- Matches ---
+
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow update: if isOwner(userId) && isValidUser(incoming()) && 
+                    incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'lastLogin', 'voiceEnabled', 'voiceId']);
+
+      match /sessions/{sessionId} {
+        // Secure List: Path variable hardening via isOwner(userId) ensures only self-access
+        allow list, get: if isOwner(userId);
+        
+        allow create: if isOwner(userId) && isValidId(sessionId) && isValidSession(incoming());
+        
+        allow update: if isOwner(userId) && isValidSession(incoming()) &&
+                      // Action: Update chat content or title
+                      incoming().diff(existing()).affectedKeys().hasAny(['messages', 'title', 'updatedAt']);
+        
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Teki Chat",
+  "description": "A minimalist AI chatbot for Teki.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

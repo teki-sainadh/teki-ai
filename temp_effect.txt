@@ -1,0 +1,224 @@
+222-  const searchModalInputRef = useRef<HTMLInputElement>(null);
+223-
+224:  useEffect(() => {
+225-    if (isSearchModalOpen) {
+226-      setTimeout(() => searchModalInputRef.current?.focus(), 100);
+227-    } else {
+228-      setSearchQuery('');
+229-    }
+230-  }, [isSearchModalOpen]);
+231-
+232:  useEffect(() => {
+233-    const handleKeyDown = (e: KeyboardEvent) => {
+234-      if (e.key === 'Escape' && isSearchModalOpen) {
+235-        setIsSearchModalOpen(false);
+236-      }
+237-    };
+238-    window.addEventListener('keydown', handleKeyDown);
+239-    return () => window.removeEventListener('keydown', handleKeyDown);
+240-  }, [isSearchModalOpen]);
+241-  const inputRef = useRef(input);
+242-  const [showToast, setShowToast] = useState(false);
+--
+261-  // --- End PWA Support States ---
+262-
+263:  useEffect(() => {
+264-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
+265-    if (isStandalone) {
+266-      setIsAppInstalled(true);
+267-      const isDownloaded = localStorage.getItem('gemma_downloaded') === 'true';
+268-      if (!isDownloaded && !isDownloadingModel) {
+269-        startSilentDownload();
+270-      }
+271-    }
+272-  }, []);
+273-
+--
+295-
+296-  // --- Offline AI Effects ---
+297:  useEffect(() => {
+298-    const handleOnline = () => {
+299-      setIsOnline(true);
+300-      setIsOfflineToastOpen(false);
+301-    };
+302-    const handleOffline = () => {
+303-      setIsOnline(false);
+304-      const isDownloaded = localStorage.getItem('gemma_downloaded') === 'true';
+305-      if (!isDownloaded) {
+306-        setIsOfflineToastOpen(true);
+307-      }
+--
+330-  // --- End Offline AI Effects ---
+331-
+332:  useEffect(() => {
+333-    isGeneratingRef.current = isGenerating;
+334-  }, [isGenerating]);
+335-
+336:  useEffect(() => {
+337-    currentSessionIdRef.current = currentSessionId;
+338-  }, [currentSessionId]);
+339-
+340:  useEffect(() => {
+341-    const checkSharedUrl = async () => {
+342-      const pathname = window.location.pathname;
+343-      if (pathname.startsWith('/share/')) {
+344-        const shareId = pathname.split('/')[2];
+345-        if (shareId) {
+346-          setIsSharedView(true);
+347-          try {
+348-            const sharedRef = doc(db, 'shared_sessions', shareId);
+349-            const sharedSnap = await getDoc(sharedRef);
+350-            if (sharedSnap.exists()) {
+--
+382-  }, []);
+383-
+384:  useEffect(() => {
+385-    if (user && sharedSession && (sharedSession as any).userId === user.uid) {
+386-      setIsOwner(true);
+387-      // If owner, we can just redirect to the normal chat view
+388-      window.history.replaceState({}, '', '/');
+389-      setIsSharedView(false);
+390-      setCurrentSessionId(sharedSession.id);
+391-    } else {
+392-      setIsOwner(false);
+393-    }
+394-  }, [user, sharedSession]);
+--
+425-
+426-  // Close menu when clicking outside
+427:  useEffect(() => {
+428-    const handleClickOutside = (event: MouseEvent) => {
+429-      if (
+430-        menuRef.current && 
+431-        !menuRef.current.contains(event.target as Node) &&
+432-        menuButtonRef.current &&
+433-        !menuButtonRef.current.contains(event.target as Node)
+434-      ) {
+435-        setIsMenuOpen(false);
+436-      }
+437-      if (
+--
+449-  }, [isMenuOpen, isHeaderMenuOpen]);
+450-  // Dynamic greeting message rotation
+451:  useEffect(() => {
+452-    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+453-    window.addEventListener('resize', handleResize);
+454-    return () => window.removeEventListener('resize', handleResize);
+455-  }, []);
+456-
+457:  useEffect(() => {
+458-    if (showWelcome) {
+459-      const messages = [
+460-        'How can I help you today?',
+461-        'What’s on your mind?',
+462-        'Ready to start something new?',
+463-        'Ask me anything...'
+464-      ];
+465-      
+466-      // Initial message
+467-      setGreetingMessage(messages[Math.floor(Math.random() * messages.length)]);
+--
+480-  }, [showWelcome]);
+481-
+482:  useEffect(() => {
+483-    const root = window.document.documentElement;
+484-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+485-    
+486-    // Setup window resize listener for isDesktop breakpoint (md = 768px)
+487-    const handleResize = () => {
+488-      setIsDesktop(window.innerWidth >= 768);
+489-    };
+490-    window.addEventListener('resize', handleResize);
+491-    
+492-    const applyTheme = () => {
+--
+517-
+518-  // Auth listener
+519:  useEffect(() => {
+520-    // 1) Fallback timeout: if Firebase is taking too long (e.g. offline or weird state), proceed anyway.
+521-    const fallbackTimeout = setTimeout(() => {
+522-      setIsInitializing(false);
+523-    }, 2000);
+524-
+525-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+526-      clearTimeout(fallbackTimeout);
+527-
+528-      if (firebaseUser) {
+529-        localStorage.setItem('cached_user_info', JSON.stringify({
+--
+563-
+564-  // PWA Setup
+565:  useEffect(() => {
+566-    // Check if it's iOS
+567-    const isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+568-    setIsIOS(isIosDevice);
+569-
+570-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+571-
+572-    // Show install CTA if iOS and not installed yet
+573-    if (isIosDevice && !isStandalone) {
+574-      setIsInstallable(true);
+575-    }
+--
+622-  };
+623-
+624:  useEffect(() => {
+625-    if (!user) return;
+626-
+627-    const sessionsRef = collection(db, 'users', user.uid, 'sessions');
+628-    const q = query(sessionsRef, orderBy('updatedAt', 'desc'));
+629-
+630-    const unsubscribe = onSnapshot(q, (snapshot) => {
+631-      const loadedSessions: ChatSession[] = [];
+632-      snapshot.forEach((doc) => {
+633-        const data = doc.data();
+634-        loadedSessions.push({
+--
+841-
+842-  // Auto-expand textarea
+843:  useEffect(() => {
+844-    if (textareaRef.current) {
+845-      textareaRef.current.style.height = 'auto';
+846-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
+847-    }
+848-  }, [input]);
+849-
+850:  useEffect(() => {
+851-    if (activeMode === 'love') {
+852-      setLoveQuote(LOVE_QUOTES[Math.floor(Math.random() * LOVE_QUOTES.length)]);
+853-    }
+854-  }, [activeMode]);
+855-
+856-  const currentSession = useMemo(() => isSharedView ? sharedSession : sessions.find(s => s.id === currentSessionId), [isSharedView, sharedSession, sessions, currentSessionId]);
+857-  const messages = useMemo(() => currentSession?.messages || [], [currentSession]);
+858-
+859-  const scrollToBottom = useCallback(() => {
+860-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+--
+863-  }, []);
+864-
+865:  useEffect(() => {
+866-    scrollToBottom();
+867-  }, [messages, isLoading, scrollToBottom]);
+868-
+869-  // Track scroll position
+870-  const handleScroll = () => {
+871-    if (mainRef.current) {
+872-      const { scrollTop, scrollHeight, clientHeight } = mainRef.current;
+873-      // If user is within 100px of the bottom = expanded mode
+874-      const atBottom = scrollHeight - scrollTop - clientHeight < 100;
+875-      setIsAtBottom(atBottom);
+--
+879-  };
+880-
+881:  useEffect(() => {
+882-    inputRef.current = input;
+883-  }, [input]);
+884-
+885-  const getSystemInstruction = useCallback(() => {
+886-    const name = displayName || user?.displayName?.split(' ')[0] || 'friend';
+887-    const currentDate = new Date().toLocaleDateString();
+888-    
+889-    const lengthRules = `
+890-CRITICAL RULES FOR RESPONSE LENGTH AND EMOJIS (APPLIES TO ALL MODES):
+891-1. MATCH THE USER'S MESSAGE LENGTH AND COMPLEXITY. If the user sends a short message or greeting (e.g., "hello", "hi", "how are you"), you MUST reply briefly in 1-2 sentences MAXIMUM.
