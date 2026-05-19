@@ -1,5 +1,5 @@
 
-# 🤖 Teki AI
+#  Teki AI
 
 **A blazing-fast, minimalist AI chat app — built with React, powered by Groq & Gemini.**
 
